@@ -14,8 +14,31 @@
 
 import streamlit as st
 from streamlit.logger import get_logger
+import matplotlib.pyplot as plt
+import numpy as np
+import mpld3
+import streamlit.components.v1 as components
 
 LOGGER = get_logger(__name__)
+
+
+def f(x: float) -> float:
+    if x == 0:
+        return 1
+    else:
+        return np.sin(x) / x
+
+
+def g(x: float) -> float:
+    return x*np.cos(x)
+
+
+def h(x: float) -> float:
+    if x == 0:
+        return 0
+    else:
+        return 1/x
+
 
 
 def run():
@@ -23,28 +46,35 @@ def run():
         page_title="Hello",
         page_icon="👋",
     )
+    st.title("Vending machine prediction model")
+    st.write("Enter begin and end point")
+    x1 = st.text_input("Begin")
+    x2 = st.text_input("End")
 
-    st.write("# Welcome to Streamlit! 👋")
+    options = ['f(x)', 'g(x)', 'h(x)']
+    option = st.selectbox("Choose the function: ", options)
 
-    st.sidebar.success("Select a demo above.")
+    if x1 != "" and x2 != "":
+      x1 = int(x1)
+      x2 = int(x2)
 
-    st.markdown(
-        """
-        Streamlit is an open-source app framework built specifically for
-        Machine Learning and Data Science projects.
-        **👈 Select a demo from the sidebar** to see some examples
-        of what Streamlit can do!
-        ### Want to learn more?
-        - Check out [streamlit.io](https://streamlit.io)
-        - Jump into our [documentation](https://docs.streamlit.io)
-        - Ask a question in our [community
-          forums](https://discuss.streamlit.io)
-        ### See more complex demos
-        - Use a neural net to [analyze the Udacity Self-driving Car Image
-          Dataset](https://github.com/streamlit/demo-self-driving)
-        - Explore a [New York City rideshare dataset](https://github.com/streamlit/demo-uber-nyc-pickups)
-    """
-    )
+      X = np.linspace(min(x1, x2), max(x1, x2), 1000)
+      if option == 'f(x)':
+        y = [f(x) for x in X]
+      elif option == 'g(x)':
+          y = [g(x) for x in X]
+      elif option == 'h(x)':
+          y = [h(x) for x in X]
+      else:
+          st.write("Damn")
+      
+      figure = plt.figure()
+      plt.plot(X, y)
+      X_2 = np.linspace(min(x1, x2), max(x1, x2), 1000)
+      y = [0] * 1000
+      plt.plot(X_2, y)
+      fig_html = mpld3.fig_to_html(figure)
+      components.html(fig_html, height=600)
 
 
 if __name__ == "__main__":
